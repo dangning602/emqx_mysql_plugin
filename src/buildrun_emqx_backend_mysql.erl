@@ -102,9 +102,8 @@ on_message_publish(#message{flags = #{retain := true}} = Message, _Env) ->
     #message{id = Id, from = From, topic = Topic, qos = Qos, flags = Retain, payload = Payload } = Message,
     buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL, [emqx_guid:to_hexstr(Id),binary_to_list(From),Topic,integer_to_list(Qos),null,binary_to_list(Payload),null]),
     %%io:format("on_message_publish ~s~n", [emqx_message:format(Message)]),
-    payload_list = binary_to_list(Payload),
-    payload_content = lists:keyfind("msg",1,payload_list),
-    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL_JSON, [emqx_guid:to_hexstr(Id),binary_to_list(From),Topic,integer_to_list(Qos),null,binary_to_list(Payload),null,payload_content]),
+    [key | content] = binary_to_list(Payload),
+    buildrun_emqx_backend_mysql_cli:query(?MESSAGE_PUBLISH_SQL_JSON, [emqx_guid:to_hexstr(Id),binary_to_list(From),Topic,integer_to_list(Qos),null,binary_to_list(Payload),null,content]),
     {ok, Message};
 
 on_message_publish(Message, _Env) ->
